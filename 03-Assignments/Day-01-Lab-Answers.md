@@ -322,27 +322,63 @@ I only need to determine the largest value, so the duplicate occurrence does not
 
 # Step 3 — Think About the Algorithm
 
-**Not completed yet.**
+> Describe your approach as a sequence of steps.
 
-I will complete this after reviewing my reasoning from Steps 1 and 2.
+### Answer
+
+```text
+12, 45, 2, 91, 37
+**Step 1**: First I take 12 and consider it as the current largest number.
+Step 2: Now I have been given a new number, I will check the new number with the current largest number. If new number is greater than the current largest number, I will consider new number to be current largest number and so on till the time I get new number. If the new number is not greater than the current largest number, I will keep the current largest number and continue with the next number.
+Step 3: If there is no number present, I will tell there is no largest number.
+Step 4: If there are negative numbers (-2, -3, -5, -1), I will consider the number closer to zero as the largest number(-2 in this case) by following Step 2. 
+Step 5: If there is only one number given, I will directly consider it largest.
+```
 
 ---
 
 # Step 4 — Think About Efficiency
 
-**Not started yet.**
+### Answer
 
+Regardless of the number of values, my approach will work. Whether there are 5, 100, 1,000, or even 10,000,000 numbers, I can use the same approach.
+
+However, I would also consider whether the numbers are repetitive or arranged in ascending or descending order.
+
+If the numbers are in ascending order, I can directly consider the last number as the largest.
+
+If the numbers are in descending order, I can consider the first number as the largest.
+
+If there are repetitive numbers, I do not need to remove the duplicates because they do not affect the largest value. I can continue using the same comparison approach.
+
+For example:
+
+```text
+1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 1, 1
+```
 ---
 
 # Step 5 — Interview Explanation
 
-**Not started yet.**
+### Answer
+
+I will start by considering an example, either one given by the interviewer or one I create myself.
+
+Then, I will take the first number and consider it the current largest number. I will take the next number and compare it with the current largest number. If the new number is greater, I will make it the current largest number. I will continue this process until I have gone through all the numbers.
+
+If there are no numbers, I will say that there is no largest number.
+
+If there are negative numbers, I will follow the same approach. In a list containing only negative numbers, the number closer to zero will be the largest.
 
 ---
 
 # Frontend Fundamentals
 
-**Not started yet.**
+### Answer
+
+The browser understands HTML. It is responsible for reading the HTML markup and using it to render the content on the page.
+
+HTML stands for HyperText Markup Language. It provides the structure and content of a webpage, which the browser interprets and renders based on the HTML elements present in the document.
 
 ---
 
@@ -354,10 +390,27 @@ I will complete this after reviewing my reasoning from Steps 1 and 2.
 
 # Interview Exercise
 
-**Not started yet.**
+### Answer
 
+I studied the browser before React because the browser is responsible for loading and rendering the content on the screen. Understanding how the browser works helps me understand what is actually happening underneath React.
+
+It also helps me debug errors because the browser provides tools such as DevTools to inspect the DOM, console errors, network requests, and other aspects of a web application.
+
+The browser also handles concepts such as the DOM, BOM, and asynchronous operations through mechanisms such as the event loop. Understanding these concepts gives me a better foundation for understanding what React is doing on top of the browser.
 ---
 
 # Engineering Thinking
 
-**Not started yet.**
+### Answer 
+
+# Engineering Thinking
+
+### Answer
+
+The most important thing I learned today is not to over-explain and to think about whether bringing a particular concept into the discussion will actually help answer the question being asked.
+
+Today, I also created a mental model before thinking about the code. This helped me understand that it is important to first understand the problem and build a mental model using plain English before thinking about implementation.
+
+I need to make this way of thinking a habit so that I can build better applications and make better engineering decisions.
+
+I already know many of these concepts because I have experience in frontend development, but knowing a concept is not enough. I need to understand how to apply that knowledge appropriately and use it to make better changes and decisions.
