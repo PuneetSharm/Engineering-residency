@@ -1,24 +1,16 @@
-import { createServer } from "node:http";
 
-const server = createServer((request, response) => {
-  const url = new URL(request.url, "http://localhost:5000");
+import express from "express";
 
-  console.log("Method:", request.method);
-  console.log("Path:", url.pathname);
-  console.log("Page:", url.searchParams.get("page"));
+const app = express();
 
-  if (request.method === "GET" && url.pathname === "/users") {
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "text/plain; charset=utf-8");
-
-    response.end(`Users page. Requested page: ${url.searchParams.get("page") ?? "1"}`);
-  } else {
-    response.statusCode = 404;
-    response.setHeader("Content-Type", "text/plain; charset=utf-8");
-    response.end("Route not found");
-  }
+app.get("/", (request, response) => {
+  response.send("Welcome to the Home page");
 });
 
-server.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+app.get("/users", (request, response) => {
+  response.send("Users page");
+});
+
+app.listen(5000, () => {
+  console.log("Express server running on http://localhost:5000");
 });
