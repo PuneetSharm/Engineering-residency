@@ -795,3 +795,245 @@ The goal is to reconstruct the underlying system, not merely memorize definition
 **Current learning checkpoint:** Node.js runtime, ES Modules, processes, ports, HTTP server creation, request-response handling, status codes, headers, Nodemon, and basic routing.
 
 **Next:** Verify routing understanding, then study Express—what it adds over Node's HTTP module, how Express routing works, and where middleware fits into the request-response lifecycle.
+
+# Backend Server Setup — Quick Reference
+
+## 1. Initial Node.js Project Setup
+
+**Purpose:** Create a Node.js project from scratch.
+
+### Commands
+
+```bash
+# 1. Create the project directory
+mkdir backend
+
+# 2. Enter the directory
+cd backend
+
+# 3. Initialize the Node.js project
+npm init -y
+```
+
+This creates a `package.json` file containing project metadata and configuration.
+
+### Configure ES Modules
+
+Open `package.json` and change:
+
+```json
+"type": "commonjs"
+```
+
+to:
+
+```json
+"type": "module"
+```
+
+**Why?** We use ES Modules (`import`/`export`), consistent with our React and JavaScript experience.
+
+### Create the server file
+
+Create a file named:
+
+```text
+server.js
+```
+
+You can create it manually in your editor or, in Git Bash, run:
+
+```bash
+touch server.js
+```
+
+---
+
+## 2. Run a Basic Node.js HTTP Server
+
+Node.js has a built-in HTTP module, so no additional npm package is required.
+
+### `server.js`
+
+```js
+import { createServer } from "node:http";
+
+const server = createServer((request, response) => {
+  console.log("Request received:", request.method, request.url);
+
+  response.statusCode = 200;
+  response.setHeader("Content-Type", "text/plain; charset=utf-8");
+  response.end("Hello from Node.js");
+});
+
+server.listen(5000, () => {
+  console.log("Server running on http://localhost:5000");
+});
+```
+
+### Start the server
+
+```bash
+node server.js
+```
+
+Open this URL in your browser:
+
+```text
+http://localhost:5000
+```
+
+Expected browser response:
+
+```text
+Hello from Node.js
+```
+
+### Stop the server
+
+Press:
+
+```text
+Ctrl + C
+```
+
+**Remember:** Saving changes to `server.js` does not automatically restart a process running with `node server.js`. Stop and restart it to load the updated code.
+
+---
+
+## 3. Install and Configure Nodemon (Optional)
+
+**Purpose:** Automatically restart the Node.js process when relevant files change during development.
+
+### Install Nodemon
+
+Run this inside the backend project directory:
+
+```bash
+npm install --save-dev nodemon
+```
+
+`--save-dev` adds Nodemon as a development dependency.
+
+### Configure `package.json`
+
+Add or update the `scripts` section, preserving the other existing fields:
+
+```json
+"scripts": {
+  "start": "node server.js",
+  "dev": "nodemon server.js"
+}
+```
+
+### Start the server
+
+For normal Node.js execution:
+
+```bash
+npm start
+```
+
+For development with automatic restarts:
+
+```bash
+npm run dev
+```
+
+**Distinction:**
+
+- `npm start` runs the configured `start` script.
+- `npm run dev` runs the configured `dev` script.
+- Nodemon watches files and restarts Node.js when it detects relevant changes.
+- Nodemon is a development convenience, not a replacement for production process supervision.
+
+---
+
+## 4. Add Express to the Existing Project
+
+**Purpose:** Use Express to simplify routing and HTTP request handling.
+
+You do not need to initialize another project. Continue using the existing `backend` directory.
+
+### Install Express
+
+```bash
+npm install express
+```
+
+This adds Express as a project dependency.
+
+### Replace `server.js` with the Express version
+
+```js
+import express from "express";
+
+const app = express();
+
+app.get("/", (request, response) => {
+  response.send("Welcome to the Home page");
+});
+
+app.get("/users", (request, response) => {
+  response.send("Users page");
+});
+
+app.listen(5000, () => {
+  console.log("Express server running on http://localhost:5000");
+});
+```
+
+### Start the Express server
+
+If using ordinary Node.js:
+
+```bash
+node server.js
+```
+
+If Nodemon is installed and configured:
+
+```bash
+npm run dev
+```
+
+If the previous server is still running on port `5000`, stop it with `Ctrl + C` before starting the replacement server.
+
+### Test the routes
+
+| URL | Expected response |
+|---|---|
+| `http://localhost:5000/` | Welcome to the Home page |
+| `http://localhost:5000/users` | Users page |
+| `http://localhost:5000/products` | Express's default unmatched-route response |
+
+---
+
+## 5. Commands at a Glance
+
+| Task | Command |
+|---|---|
+| Create project folder | `mkdir backend` |
+| Enter project folder | `cd backend` |
+| Initialize project | `npm init -y` |
+| Create server file in Git Bash | `touch server.js` |
+| Start plain Node.js server | `node server.js` |
+| Install Express | `npm install express` |
+| Install Nodemon (optional) | `npm install --save-dev nodemon` |
+| Start using configured start script | `npm start` |
+| Start using Nodemon | `npm run dev` |
+| Stop a running server | `Ctrl + C` |
+
+## 6. Initial Setup Checklist
+
+- [ ] Create the `backend` directory.
+- [ ] Run `npm init -y`.
+- [ ] Set `"type": "module"` in `package.json`.
+- [ ] Create `server.js`.
+- [ ] Run the basic Node.js HTTP server.
+- [ ] Verify the response in the browser.
+- [ ] Understand request logging, status codes, headers, and response bodies.
+- [ ] Install Express when ready to move to framework-based routing.
+- [ ] Optionally install and configure Nodemon for development.
+
+**Important:** Express and Nodemon are separate dependencies. Express is used by the application; Nodemon is an optional development tool.
