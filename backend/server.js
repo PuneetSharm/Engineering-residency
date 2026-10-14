@@ -1,26 +1,17 @@
 import { createServer } from "node:http";
 
 const server = createServer((request, response) => {
-  console.log("Request:", request.method, request.url);
+  const url = new URL(request.url, "http://localhost:5000");
 
-  if (request.method === "GET" && request.url === "/") {
+  console.log("Method:", request.method);
+  console.log("Path:", url.pathname);
+  console.log("Page:", url.searchParams.get("page"));
+
+  if (request.method === "GET" && url.pathname === "/users") {
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
-    response.end("Welcome to the Home page");
-  } else if (
-    request.method === "GET" &&
-    request.url === "/users"
-  ) {
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "text/plain; charset=utf-8");
-    response.end("Users page");
-  } else if (
-    request.method === "GET" &&
-    request.url === "/products"
-  ) {
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "text/plain; charset=utf-8");
-    response.end("Products page");
+
+    response.end(`Users page. Requested page: ${url.searchParams.get("page") ?? "1"}`);
   } else {
     response.statusCode = 404;
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
