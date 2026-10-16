@@ -3,6 +3,12 @@ import express from "express";
 
 const app = express();
 
+app.use(( request, response, next) =>{
+  console.log("Method : ", request.method);
+  console.log("Url : ", request.url);
+  next();
+});
+
 app.get("/", (request, response) => {
   response.send("Welcome to the Home page");
 });
