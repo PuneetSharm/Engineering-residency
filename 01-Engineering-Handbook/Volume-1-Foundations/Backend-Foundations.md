@@ -1037,3 +1037,285 @@ If the previous server is still running on port `5000`, stop it with `Ctrl + C` 
 - [ ] Optionally install and configure Nodemon for development.
 
 **Important:** Express and Nodemon are separate dependencies. Express is used by the application; Nodemon is an optional development tool.
+
+# Express Middleware Foundations
+
+## 1. What Is Middleware?
+
+**Middleware** is a function that runs during the Express request-response lifecycle. It can inspect or modify the incoming request, perform operations, send a response, or pass control to the next middleware or route handler.
+
+Common uses of middleware include:
+- Logging incoming requests.
+- Parsing request bodies.
+- Checking authentication and authorization.
+- Processing requests before they reach route handlers.
+- Handling errors.
+
+A middleware function commonly receives three parameters:
+
+```js
+(request, response, next)
+```
+
+- `request`: Represents the incoming HTTP request.
+- `response`: Allows the server to send an HTTP response.
+- `next`: A function provided by Express to pass control to the next middleware or handler.
+
+## 2. Understanding `app.use()`
+
+Example:
+
+```js
+app.use((request, response, next) => {
+  console.log("Method:", request.method);
+  console.log("URL:", request.url);
+
+  next();
+});
+```
+
+### Line-by-line explanation
+
+- `app.use()` registers middleware with the Express application.
+- `(request, response, next) => { ... }` is an arrow function that Express invokes when a matching request reaches this middleware.
+- `request.method` gives the HTTP method, such as `GET` or `POST`.
+- `request.url` gives the requested path and query string, such as `/users?page=3`.
+- `console.log()` prints information in the terminal where the Node.js server is running.
+- `next()` passes control onward to the next applicable middleware or route handler.
+
+The middleware above logs request information and then allows the request to continue.
+
+**Important:** If middleware neither sends a response nor calls `next()` (or otherwise completes the response), the request can remain pending.
+
+## 3. Middleware Execution Order
+
+Express processes registered middleware and route handlers in registration order.
+
+Example:
+
+```js
+app.use((request, response, next) => {
+  console.log("Middleware executed");
+  next();
+});
+
+app.get("/", (request, response) => {
+  response.send("Welcome to the Home page");
+});
+
+app.get("/users", (request, response) => {
+  response.send("Users page");
+});
+```
+
+For a request to `/users`, the execution flow is:
+
+1. The middleware runs.
+2. The middleware logs the request information.
+3. `next()` passes control onward.
+4. The matching `/users` route handler runs.
+5. `response.send()` sends the response to the client.
+
+### What happens if middleware is below the routes?
+
+If an earlier matching route handler sends a response, Express normally does not continue to later middleware for that request.
+
+However, if a route handler calls `next()` instead of completing the response, control can continue to later applicable handlers.
+
+Middleware order therefore matters.
+
+## 4. Built-in Middleware: `express.json()`
+
+When a client sends JSON data in an HTTP request body, Express needs middleware to parse that JSON into a JavaScript value.
+
+Register the built-in JSON middleware before the routes that need the parsed body:
+
+```js
+app.use(express.json());
+```
+
+After parsing, the data is available through `request.body`.
+
+### Example: Receiving JSON in a POST request
+
+```js
+app.use(express.json());
+
+app.post("/users", (request, response) => {
+  console.log(request.body);
+  response.send("User data received");
+});
+```
+
+If the client sends this JSON:
+
+```json
+{
+  "username": "Puneet",
+  "role": "developer"
+}
+```
+
+The parsed `request.body` will be a JavaScript object equivalent to:
+
+```js
+{
+  username: "Puneet",
+  role: "developer"
+}
+```
+
+The route can then access individual properties:
+
+```js
+console.log(request.body.username);
+console.log(request.body.role);
+```
+
+Expected terminal output:
+
+```text
+Puneet
+developer
+```
+
+### What `express.json()` does and does not do
+
+**It does:**
+- Parse applicable incoming JSON request bodies.
+- Make the parsed data available through `request.body`.
+
+**It does not:**
+- Validate whether the data meets application requirements.
+- Authenticate the user.
+- Save the data to a database.
+- Create a route that does not exist.
+
+Parsing, validation, authentication, and persistence are separate responsibilities.
+
+## 5. Practical Experiment: Testing JSON Middleware
+
+A separate Node.js script can send an HTTP request without requiring Postman.
+
+### Step 1: Add a POST route to `server.js`
+
+Ensure this middleware is registered before the route:
+
+```js
+app.use(express.json());
+```
+
+Then add:
+
+```js
+app.post("/users", (request, response) => {
+  console.log(request.body);
+  response.send("User data received");
+});
+```
+
+### Step 2: Create `test-request.js`
+
+```js
+const response = await fetch("http://localhost:5000/users", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    username: "Puneet",
+    role: "developer",
+  }),
+});
+
+console.log("Status:", response.status);
+console.log("Response:", await response.text());
+```
+
+This script:
+- Uses `fetch()` to send an HTTP request.
+- Sets the method to `POST`.
+- Specifies that the request body contains JSON.
+- Uses `JSON.stringify()` to convert a JavaScript object into a JSON string.
+- Prints the HTTP status and response body returned by the server.
+
+Node.js 24 supports the built-in `fetch()` API. With `"type": "module"` in `package.json`, the script can use top-level `await`.
+
+### Step 3: Run the experiment
+
+Use two terminals.
+
+**Terminal 1 — Start the server:**
+
+```bash
+node server.js
+```
+
+Keep this terminal running.
+
+**Terminal 2 — Send the request:**
+
+```bash
+node test-request.js
+```
+
+With the POST route and JSON middleware configured correctly, the server should log the parsed object. The client should receive status `200` and the response `User data received`.
+
+### Step 4: Temporarily remove `express.json()`
+
+Comment out:
+
+```js
+// app.use(express.json());
+```
+
+Restart the server and run the test script again.
+
+The matching POST route can still execute, but the JSON body will not be parsed by `express.json()`. In this example, `request.body` may be `undefined`.
+
+Restore the middleware and restart the server after the experiment.
+
+**Important distinction:** Removing `express.json()` does not, by itself, cause a `404` response. A `404 Cannot POST /users` usually indicates that the running application did not match a handler for that POST request. Check the HTTP method, URL, route definition, and whether the correct server version is running.
+
+## 6. Types of Middleware — Introduction
+
+Express middleware can be grouped by how it is used.
+
+| Type | Purpose | Example |
+|---|---|---|
+| Application-level middleware | Applies to requests reaching a registered middleware in the application | `app.use(...)` |
+| Route-specific middleware | Runs for a particular route or route group | `app.get("/users", middleware, handler)` |
+| Built-in middleware | Provided by Express | `express.json()` |
+| Error-handling middleware | Handles errors passed through Express's error flow | To be covered in a later lesson |
+
+These categories describe different uses of middleware. They are not necessarily mutually exclusive in every implementation.
+
+## 7. Key Vocabulary
+
+| Term | Meaning |
+|---|---|
+| Middleware | A function that participates in processing a request |
+| Register | Add middleware or a route handler to the Express application |
+| Invoke | Execute or call a function |
+| Callback | A function supplied for another part of a program to call |
+| Parameter | A variable declared in a function definition |
+| Argument | A value passed to a function |
+| Parse | Convert data from one representation into a form the program can work with |
+| Request body | Data sent by the client in the body of an HTTP request |
+| Route handler | A function that handles a matching route and HTTP method |
+| Request-response lifecycle | The flow from receiving a request to completing its response |
+| `next()` | Pass control to the next applicable middleware or handler |
+
+## 8. Key Takeaways
+
+- `app.use()` registers middleware.
+- Express executes middleware and route handlers according to their registration order.
+- `next()` passes control onward; it does not itself send a response.
+- A handler that sends a response normally ends the regular request-processing flow unless it explicitly passes control onward.
+- `express.json()` parses applicable JSON request bodies so routes can access the parsed data through `request.body`.
+- A request-body parsing issue and a missing-route `404` are different problems.
+- Middleware can perform several jobs, but parsing, validation, authentication, and database operations should not be treated as the same thing.
+
+### Next Topic
+
+**Error-handling middleware in Express** — not covered yet.
