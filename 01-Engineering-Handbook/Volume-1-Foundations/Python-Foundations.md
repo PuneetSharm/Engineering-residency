@@ -129,3 +129,47 @@ Even when two values look similar when displayed, their data types can be differ
 6. Conditional statements
 7. Loops
 8. Functions
+
+## Type Conversion
+
+**Type conversion** means converting a value from one data type to another.
+
+Common built-in conversion functions:
+
+| Function | Purpose | Example |
+|---|---|---|
+| `int()` | Converts a compatible value to an integer | `int("25")` → `25` |
+| `str()` | Converts a value to a string | `str(25)` → `"25"` |
+| `float()` | Converts a compatible value to a floating-point number | `float(25)` → `25.0` |
+
+### Operations involving different types
+
+```python
+print("25" + "5")  # 255
+print(25 + 5)      # 30
+print("25" + 5)    # TypeError
+```
+
+- Adding two strings joins their contents.
+- Adding two integers performs arithmetic addition.
+- Adding a string and an integer with `+` raises a `TypeError`.
+
+Python does not automatically convert an integer to a string for this operation.
+
+### Conversion example
+
+```python
+age = "25"
+
+print(int(age) + 5)  # 30
+print(age)           # 25
+```
+
+`int(age)` returns an integer, but it does not change the original value referred to by `age`. The original variable remains a string unless the converted value is assigned back to it.
+
+**Important:** Conversion can fail. For example, `int("hello")` raises a `ValueError` because the string does not represent a valid integer.
+
+### Key takeaway
+
+The data type of a value affects which operations are valid. When working with input, calculations, or data from external sources, check whether conversion is needed before performing an operation.
+
